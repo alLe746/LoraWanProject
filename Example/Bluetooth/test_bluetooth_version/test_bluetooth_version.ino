@@ -1,4 +1,4 @@
-#include <RN2483_BLE.h>
+#include <RN248x_BLE.h>
 
 #define debugSerial SerialUSB
 #define bleSerial Serial1
@@ -21,15 +21,15 @@ void setup() {
   debugSerial.begin(115200);  
 
   // Set the optional debug stream
-  rn487xBle.setDiag(debugSerial) ;
+  rn248xBle.setDiag(debugSerial) ;
   // Initialize the BLE hardware
-  rn487xBle.hwInit() ;
+  rn248xBle.hwInit() ;
   // Open the communication pipe with the BLE module
-  bleSerial.begin(rn487xBle.getDefaultBaudRate()) ;
+  bleSerial.begin(rn248xBle.getDefaultBaudRate()) ;
   // Assign the BLE serial port to the BLE library
-  rn487xBle.initBleStream(&bleSerial) ;
+  rn248xBle.initBleStream(&bleSerial) ;
   // Finalize the init. process
-  if (rn487xBle.swInit())
+  if (rn248xBle.swInit())
   {
     pinMode(LED_BUILTIN, HIGH);
     debugSerial.println("Init. procedure done!") ;
@@ -45,15 +45,15 @@ void setup() {
 void loop() {
 
   // BT module must be put in command mode first.
-  rn487xBle.enterCommandMode() ;
+  rn248xBle.enterCommandMode() ;
   // Request firmware version.
-  bool res = rn487xBle.getFirmwareVersion();
+  bool res = rn248xBle.getFirmwareVersion();
   if (!res) {
     debugSerial.println("Could not get firmware version. Stopping...");
     while(1);
   }
   // At this stage, firmware version was returned by RN4871 module. Get it.
-  fwVersion = rn487xBle.getLastResponse();
+  fwVersion = rn248xBle.getLastResponse();
   if (fwVersion == NULL) {
     debugSerial.println("Firmware version can't be read. Stopping...");
     while(1);

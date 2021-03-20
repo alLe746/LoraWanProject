@@ -43,15 +43,15 @@ void setup()
   initTemperature() ;
 
   // Set the optional debug stream
-  rn487xBle.setDiag(debugSerial) ;
+  rn248xBle.setDiag(debugSerial) ;
   // Initialize the BLE hardware
-  rn487xBle.hwInit() ;
+  rn248xBle.hwInit() ;
   // Open the communication pipe with the BLE module
-  bleSerial.begin(rn487xBle.getDefaultBaudRate()) ;
+  bleSerial.begin(rn248xBle.getDefaultBaudRate()) ;
   // Assign the BLE serial port to the BLE library
-  rn487xBle.initBleStream(&bleSerial) ;
+  rn248xBle.initBleStream(&bleSerial) ;
   // Finalize the init. process
-  if (rn487xBle.swInit())
+  if (rn248xBle.swInit())
   {
     pinMode(LED_BUILTIN, HIGH);
     debugSerial.println("Init. procedure done!") ;
@@ -64,32 +64,32 @@ void setup()
   }
 
   // Fist, enter into command mode
-  rn487xBle.enterCommandMode() ;
+  rn248xBle.enterCommandMode() ;
   // Stop advertising before starting the demo
-  rn487xBle.stopAdvertising() ;
+  rn248xBle.stopAdvertising() ;
   // Set the advertising output power (range: min = 5, max = 0)
-  rn487xBle.setAdvPower(3) ;
+  rn248xBle.setAdvPower(3) ;
   // Set the serialized device name, i.e. device n,ame + 2 last bytes from MAC address.
-  rn487xBle.setSerializedName(myDeviceName) ;
-  rn487xBle.clearAllServices() ;
-  rn487xBle.reboot() ;
-  rn487xBle.enterCommandMode() ;  
+  rn248xBle.setSerializedName(myDeviceName) ;
+  rn248xBle.clearAllServices() ;
+  rn248xBle.reboot() ;
+  rn248xBle.enterCommandMode() ;  
   // Set a private service ...
-  rn487xBle.setServiceUUID(myPrivateServiceUUID) ;
+  rn248xBle.setServiceUUID(myPrivateServiceUUID) ;
   // which contains ...
   // ...a temperature characteristic; readable and can perform notification, 2-octets size
-  rn487xBle.setCharactUUID(temperatureCharacteristicUUID, READ_PROPERTY | NOTIFY_PROPERTY, temperatureCharacteristicLen) ;
+  rn248xBle.setCharactUUID(temperatureCharacteristicUUID, READ_PROPERTY | NOTIFY_PROPERTY, temperatureCharacteristicLen) ;
   // ...an LED characteristic; properties: writable
-  rn487xBle.setCharactUUID(ledCharacteristicUUID, WRITE_PROPERTY, ledCharacteristicLen) ;       
+  rn248xBle.setCharactUUID(ledCharacteristicUUID, WRITE_PROPERTY, ledCharacteristicLen) ;       
   // take into account the settings by issuing a reboot
-  rn487xBle.reboot() ;
-  rn487xBle.enterCommandMode() ;
+  rn248xBle.reboot() ;
+  rn248xBle.enterCommandMode() ;
   // Clear adv. packet
-  rn487xBle.clearImmediateAdvertising() ;
+  rn248xBle.clearImmediateAdvertising() ;
   // Start adv.
   // The line below is required, to let an Android device discover the board. 
-  rn487xBle.startImmediateAdvertising(AD_TYPE_FLAGS, "06");
-  rn487xBle.startImmediateAdvertising(AD_TYPE_MANUFACTURE_SPECIFIC_DATA, "CD00FE14AD11CF40063F11E5BE3E0002A5D5C51B") ;
+  rn248xBle.startImmediateAdvertising(AD_TYPE_FLAGS, "06");
+  rn248xBle.startImmediateAdvertising(AD_TYPE_MANUFACTURE_SPECIFIC_DATA, "CD00FE14AD11CF40063F11E5BE3E0002A5D5C51B") ;
 
   debugSerial.println("Starter Kit as a Peripheral with private service") ;
   debugSerial.println("================================================") ;
@@ -99,18 +99,18 @@ void setup()
   debugSerial.println(temperatureCharacteristicUUID) ;
   debugSerial.println("You can now establish a connection from the Microchip SmartDiscovery App") ;
   debugSerial.print("with the starter kit: ") ;
-  debugSerial.println(rn487xBle.getDeviceName()) ;
+  debugSerial.println(rn248xBle.getDeviceName()) ;
 
 }
 
 void loop()
 {
   // Check the connection status
-  if (rn487xBle.getConnectionStatus())
+  if (rn248xBle.getConnectionStatus())
   {
     // Connected to a peer
     debugSerial.print("Connected to a peer central ") ;
-    debugSerial.println(rn487xBle.getLastResponse()) ;
+    debugSerial.println(rn248xBle.getLastResponse()) ;
 
     // Temperature
     prevTempValue_u8 = newTempValue_u8 ;
@@ -128,7 +128,7 @@ void loop()
       if (temperature_s > 0)  temperaturePayload[0] = '0' ; // MSB = 0, positive temp.
       else                    temperaturePayload[0] = '8' ; // MSB = 1, negative temp.  
          
-      if (rn487xBle.writeLocalCharacteristic(temperatureHandle, temperaturePayload))
+      if (rn248xBle.writeLocalCharacteristic(temperatureHandle, temperaturePayload))
       {
         debugSerial.print("Temperature characteristic has been updated with the value = ") ; debugSerial.println(newTempValue_u8) ;
       }
