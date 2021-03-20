@@ -1,4 +1,4 @@
-#include <RN487x_BLE.h>
+#include <RN2483_BLE.h>
 
 #define debugSerial SerialUSB
 #define bleSerial Serial1
@@ -13,10 +13,6 @@ char temperaturePayload[temperatureCharacteristicLen*2] ;
 float temperature_s ;
 uint8_t newTempValue_u8 = 0 ;
 uint8_t prevTempValue_u8 = 0 ;
-const char* ledCharacteristicUUID = "BF3FBD80063F11E59E690002A5D5C503" ;  // custom characteristic GATT
-const uint8_t ledCharacteristicLen = 6 ;
-uint16_t ledHandle = 0x75 ;
-const char* ledPayload ;
 
 void initLed()
 {
@@ -101,8 +97,6 @@ void setup()
   debugSerial.println(myPrivateServiceUUID) ;
   debugSerial.print("Private characteristic used for the Temperature: ") ;
   debugSerial.println(temperatureCharacteristicUUID) ;
-  debugSerial.print("Private characteristic used for the LED: ") ;
-  debugSerial.println(ledCharacteristicUUID) ;
   debugSerial.println("You can now establish a connection from the Microchip SmartDiscovery App") ;
   debugSerial.print("with the starter kit: ") ;
   debugSerial.println(rn487xBle.getDeviceName()) ;

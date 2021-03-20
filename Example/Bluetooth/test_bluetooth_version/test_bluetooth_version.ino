@@ -1,4 +1,4 @@
-#include <RN487x_BLE.h>
+#include <RN2483_BLE.h>
 
 #define debugSerial SerialUSB
 #define bleSerial Serial1
@@ -7,19 +7,15 @@
 
 const char* fwVersion;
 
-void setRgbColor(uint8_t red, uint8_t green, uint8_t blue)
+void initLed()
 {
-  red = 255 - red ;
-  green = 255 - green ;
-  blue = 255 - blue ;
-
-  analogWrite(LED_RED, red) ;
-  analogWrite(LED_GREEN, green) ;
-  analogWrite(LED_BLUE, blue) ;
+  pinMode(LED_BUILTIN, OUTPUT) ;
 }
 
 void setup() {
 
+  initLed() ;
+  
   // Wait for monitor window to be used, up to SERIAL_TIMEOUT.
   while ((!debugSerial) && (millis() < SERIAL_TIMEOUT));
   debugSerial.begin(115200);  
@@ -35,16 +31,15 @@ void setup() {
   // Finalize the init. process
   if (rn487xBle.swInit())
   {
-    setRgbColor(0, 255, 0) ;
+    pinMode(LED_BUILTIN, HIGH);
     debugSerial.println("Init. procedure done!") ;
   }
   else
   {
-    setRgbColor(255, 0, 0) ;
+    pinMode(LED_BUILTIN, LOW);
     debugSerial.println("Init. procedure failed!") ;
     while(1) ;
   }
-
 }
 
 void loop() {
