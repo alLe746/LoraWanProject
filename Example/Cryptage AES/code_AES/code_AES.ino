@@ -31,13 +31,9 @@ void loop ()
 
 void setup ()
 {
-  Serial.begin (57600) ;
-  Serial.print ("testng mode") ;
+  Serial.begin (9600) ;
 
   test () ;
-
-  //  otfly_test () ;
-  //  otfly_test256 () ;
 }
 void key_setting()
 {
