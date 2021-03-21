@@ -41,16 +41,29 @@ void loop() {
   byte temp[message.length()];
   message.getBytes(temp,message.length());
   aes.encrypt (temp, cipher);
-  LORA_Write((char*)cipher);
+  String Tosend = "";
+  for (byte i = 0 ; i < sizeof(cipher)/sizeof(cipher[0]) ; i++)
+    {
+      byte val = cipher[i];
+       Tosend += String(val >> 4, HEX) ; Tosend += String(val & 15, HEX) ;
+    }
+  char * Tosendchar = new char[Tosend.length() +1];
+  strcpy(Tosendchar,Tosend.c_str());
+  LORA_Write(Tosendchar);
   time=millis();
   while(millis()-time < 5000);
   char Data[100] = "";
-  if (LORA_Read(Data)==1)
+  if (Serial2.available())
   {
-    
-    byte todecrypt[String(Data).length()];
-    String(Data).getBytes(todecrypt,String(Data).length());
-    aes.decrypt (todecrypt, check);
+    LORA_Read(Data);
+    byte out[(sizeof(Data)/sizeof(Data[0]))/2];
+    auto getNum = [](char c){ return c > '9' ? c - 'a' + 10 : c - '0'; };
+    byte *ptr = out;
+
+    for(char *idx = Data ; *idx ; ++idx, ++ptr ){
+      *ptr = (getNum( *idx++ ) << 4) + getNum( *idx );
+    }
+    aes.decrypt (out, check);
     SerialUSB.println(String((char *)check));
     //Envoyer en bluetooth
   }
