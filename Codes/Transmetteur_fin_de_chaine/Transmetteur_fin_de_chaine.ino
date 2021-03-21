@@ -8,7 +8,7 @@
 
 Adafruit_BME280 bme;
 AES aes ;
-byte Keyword[64];
+String Keyword = "Hello";
 byte key[] =
 {
   0x12, 0x80, 0x02, 0x46, 0x57, 0x42, 0x13, 0x13, 0x75, 0x60, 0x44, 0x99, 0x11, 0x90, 0x07, 0x00,
@@ -19,7 +19,7 @@ byte cipher [4 * N_BLOCK] ; //le truc crypté à envoyer
 byte check [4 * N_BLOCK] ; //le truc decrypté après la réception
 
 void setup() {
-  // put your setup code here, to run once:
+
   SerialUSB.begin(57600);
   Serial2.begin(57600);
   
@@ -37,27 +37,18 @@ void setup() {
 
   LoraP2P_Setup();
   
-  digitalWrite(LED_BUILTIN, HIGH);
-  String message="Hello1";
-  byte temp[message.length()];
-  message.getBytes(temp,message.length());
-  aes.encrypt(temp,cipher);
-  for (int i=0;i<64;i++)
-  {
-    Keyword[i]=cipher[i];
-  }
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-
-  // DEBUG CHECK
-  digitalWrite(LED_GREEN, HIGH);
   
   char Data[100] = "";  // Array to store the message in
-
-  if (LORA_Read(Data) == 1)
+  SerialUSB.println("got loop ?");
+  if (LORA_Read(Data))
   {
+    SerialUSB.println("Data :");
+    String Data_str = (String)Data;
+    Data_str.toLowerCase();
+    Data_str.toCharArray(Data,sizeof(Data)/sizeof(Data[0]));
     byte out[(sizeof(Data)/sizeof(Data[0]))/2];
     auto getNum = [](char c){ return c > '9' ? c - 'a' + 10 : c - '0'; };
     byte *ptr = out;
@@ -65,9 +56,8 @@ void loop() {
     for(char *idx = Data ; *idx ; ++idx, ++ptr ){
       *ptr = (getNum( *idx++ ) << 4) + getNum( *idx );
     }
-    // DEBUG CHECK
-    digitalWrite(LED_GREEN, LOW); // Light up LED if there is a message
-    if ((char *)out == (char *)Keyword)
+    aes.decrypt(out,check);
+    if ((String)(char *)check == Keyword)
     {
       String value = String(bme.readTemperature());
       byte temp[value.length()];
@@ -84,7 +74,7 @@ void loop() {
       strcpy(Tosendchar,Tosend.c_str());
       LORA_Write(Tosendchar);
       digitalWrite(LED_GREEN, HIGH); // To let us know when the data is send
-      delay(100);
+      delay(1000);
       digitalWrite(LED_GREEN, LOW);
       delay(50);
     }

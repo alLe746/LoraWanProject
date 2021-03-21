@@ -1,8 +1,5 @@
 #include <AES.h>
-#include <Adafruit_Sensor.h>
-#include <Adafruit_BME280.h>
 
-Adafruit_BME280 bme;
 AES aes ;
 int time;
 byte key[] =
@@ -18,22 +15,13 @@ void setup() {
   // put your setup code here, to run once:
   SerialUSB.begin(57600);
   Serial2.begin(57600);
-  
-  if (!bme.begin())  {
-      SerialUSB.println("Could not find a valid BMP280 sensor, check wiring!");
-    while (1);
-  }
 
   aes.set_key (key, 256);
-  // DEBUG CHECK
-  pinMode(LED_BUILTIN, OUTPUT);
-  pinMode(LED_GREEN, OUTPUT) ;
 
   while (!SerialUSB && millis() < 1000);
 
   LoraP2P_Setup();
   
-  digitalWrite(LED_BUILTIN, HIGH);
 }
 
 void loop() {
@@ -50,12 +38,12 @@ void loop() {
   char * Tosendchar = new char[Tosend.length() +1];
   strcpy(Tosendchar,Tosend.c_str());
   LORA_Write(Tosendchar);
-  time=millis();
-  while(millis()-time < 5000);
   char Data[100] = "";
-  if (Serial2.available())
+  if (LORA_Read(Data))
   {
-    LORA_Read(Data);
+    String Data_str = (String)Data;
+    Data_str.toLowerCase();
+    Data_str.toCharArray(Data,sizeof(Data)/sizeof(Data[0]));
     byte out[(sizeof(Data)/sizeof(Data[0]))/2];
     auto getNum = [](char c){ return c > '9' ? c - 'a' + 10 : c - '0'; };
     byte *ptr = out;
@@ -64,7 +52,6 @@ void loop() {
       *ptr = (getNum( *idx++ ) << 4) + getNum( *idx );
     }
     aes.decrypt (out, check);
-    SerialUSB.println(String((char *)check));
     //Envoyer en bluetooth
   }
   time=millis();
