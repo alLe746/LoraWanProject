@@ -1,9 +1,13 @@
-#include <RN2483_BLE.h>
+#include <RN487x_BLE.h>
+
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BME280.h>
 
 #define debugSerial SerialUSB
 #define bleSerial Serial1
 #define SERIAL_TIMEOUT  10000
 
+Adafruit_BME280 bme;
 const char* myDeviceName = "testPeriph" ;  // Custom Device name
 const char* myPrivateServiceUUID = "AD11CF40063F11E5BE3E0002A5D5C51B" ; // Custom private service UUID
 const char* temperatureCharacteristicUUID = "BF3FBD80063F11E59E690002A5D5C501" ;  // custom characteristic GATT
@@ -21,16 +25,15 @@ void initLed()
 
 void initTemperature()
 {
-  pinMode(TEMP_SENSOR, INPUT) ;
-  //Set ADC resolution to 12 bits
-  analogReadResolution(12) ;  
+  if (!bme.begin())  {
+      SerialUSB.println("Could not find a valid BMP280 sensor, check wiring!");
+    while (1);
+  }  
 }
 
 float getTemperature()
 {
-  float mVolts = (float)analogRead(TEMP_SENSOR) * 3300.0 / 1023.0 ;
-  float temp = (mVolts - 500.0) / 100.0 ;
-  return temp ;
+  return bme.readTemperature();
 }
 
 void setup()
