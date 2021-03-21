@@ -8,7 +8,7 @@
 
 Adafruit_BME280 bme;
 AES aes ;
-
+char * Keyword;
 byte key[] =
 {
   0x12, 0x80, 0x02, 0x46, 0x57, 0x42, 0x13, 0x13, 0x75, 0x60, 0x44, 0x99, 0x11, 0x90, 0x07, 0x00,
@@ -24,7 +24,7 @@ void setup() {
   Serial2.begin(57600);
   
   if (!bme.begin())  {
-      debugSerial.println("Could not find a valid BMP280 sensor, check wiring!");
+      SerialUSB.println("Could not find a valid BMP280 sensor, check wiring!");
     while (1);
   }
 
@@ -38,6 +38,11 @@ void setup() {
   LoraP2P_Setup();
   
   digitalWrite(LED_BUILTIN, HIGH);
+  String message="Hello1";
+  byte temp[message.length()];
+  message.getBytes(temp,message.length());
+  aes.encrypt(temp,cipher);
+  Keyword = (char *)cipher;
 }
 
 void loop() {
@@ -54,7 +59,9 @@ void loop() {
     digitalWrite(LED_GREEN, LOW); // Light up LED if there is a message
     if (Data == Keyword)
     {
-      byte temp[] = (byte)bme.ReadTemperature();
+      String value = String(bme.readTemperature());
+      byte temp[value.length()];
+      value.getBytes(temp,value.length());
       aes.encrypt (temp, cipher);
       LORA_Write((char*)cipher);
       digitalWrite(LED_GREEN, HIGH); // To let us know when the data is send
