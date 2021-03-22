@@ -100,6 +100,7 @@ int LORA_Read(char* Data)
       messageFlag = 2; // Read error or Watchdogtimer timeout
     }
   }
+  
 #ifdef DEBUG
   SerialUSB.println(Buffer);
 #endif
